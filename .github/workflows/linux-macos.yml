@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        platform: ['macos', 'ubuntu']
+    runs-on: ${{ matrix.platform }}-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependencies
+        run: python3 -m pip install meson ninja
+      - name: Setup build
+        run: meson setup build
+      - name: Compile
+        run: meson compile -C build -v
+      - name: Meson Log
+        shell: bash
+        if: ${{ failure() }}
+        run: |
+          cat build/meson-logs/meson-log.txt
+      - name: Run C executable
+        run: ./build/mainc
+      - name: Run C++ executable
+        run: ./build/maincpp

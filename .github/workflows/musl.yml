@@ -1,0 +1,36 @@
+name: Build - musllinux_x86_64
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  musllinux_x86_64:
+    name: Build
+    runs-on: ubuntu-latest
+    container:
+      # Use container used for building musllinux wheels
+      # it has git installed, all the pythons, etc
+      image: quay.io/pypa/musllinux_1_1_x86_64
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        python3.11 -m venv .venv
+        source ./.venv/bin/activate
+
+        python -m pip install meson ninja
+        meson setup build
+        meson compile -C build -v
+    - name: Meson Log
+      shell: bash
+      if: ${{ failure() }}
+      run: |
+        cat build/meson-logs/meson-log.txt
+    - name: Run C executable
+      run: ./build/mainc
+    - name: Run C++ executable
+      run: ./build/maincpp
