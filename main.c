@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "libnpymath/npymath.h"
 
@@ -6,5 +7,14 @@
 int main(void)
 {
     npymath_cdouble c = npymath_cpack(1, 1);
-    printf("Real: %f, Imag: %f\n", npymath_creal(c), npymath_cimag(c));
+
+    double re = npymath_creal(c);
+    double im = npymath_cimag(c);
+    printf("Real: %f, Imag: %f\n", re, im);
+
+    if (re != 1 || im != 1) {
+        exit(EXIT_FAILURE);
+    }
+
+    return EXIT_SUCCESS;
 }
